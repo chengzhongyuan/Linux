@@ -15,7 +15,7 @@ int main()
         else if(ret == 0){
             while(1)
             {
-                sleep(1);
+        //        sleep(1);
             }
         }
         cnt++;

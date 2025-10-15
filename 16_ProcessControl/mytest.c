@@ -18,7 +18,7 @@ int main()
             printf("我是子进程:%d,父进程:%d,计数:%d\n",getpid(),getppid(),cnt--);
             sleep(1);
         }
-        exit(0);
+        exit(10);
     }
     // 父进程休眠
     sleep(15);
