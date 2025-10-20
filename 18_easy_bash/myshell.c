@@ -14,6 +14,13 @@ char* myargv[OPT_NUM];
 
 void do_exec(char** myargv_)
 {
+    // 这是CD命令，不需要创建子进程，让shell自己执行对应的命令，本质上执行系统接口
+    // 不需要创建子进程，而是直接让shell自己来执行的命令，称之为内建命令
+    if(myargv[0] != NULL && strcmp(myargv[0],"cd") == 0)
+    {
+        if(myargv[1] != NULL) chdir(myargv[1]);
+        return;
+    }
     pid_t id = fork();
     assert(id >= 0);
     if(id == 0)
