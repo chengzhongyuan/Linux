@@ -1,0 +1,10 @@
+a.txt
+b.txt
+log.txt
+Makefile
+myfile
+myfile.c
+myshell
+myshell.c
+mytest.c
+t

@@ -1,0 +1,12 @@
+total 60
+drwxrwxr-x  2 zhongyuan zhongyuan  4096 Oct 21 13:48 .
+drwxrwxr-x 16 zhongyuan zhongyuan  4096 Oct 20 20:59 ..
+-rw-rw-r--  1 zhongyuan zhongyuan     0 Oct 21 13:48 a.txt
+-rw-rw-r--  1 zhongyuan zhongyuan    20 Oct 21 09:02 log.txt
+-rw-rw-r--  1 zhongyuan zhongyuan    73 Oct 20 21:06 Makefile
+-rwxrwxr-x  1 zhongyuan zhongyuan  8608 Oct 21 09:01 myfile
+-rw-rw-r--  1 zhongyuan zhongyuan   375 Oct 21 09:01 myfile.c
+-rwxrwxr-x  1 zhongyuan zhongyuan 13880 Oct 21 13:47 myshell
+-rw-rw-r--  1 zhongyuan zhongyuan  5189 Oct 21 13:47 myshell.c
+-rw-rw-r--  1 zhongyuan zhongyuan     0 Oct 21 11:42 mytest.c
+-rw-rw-r--  1 zhongyuan zhongyuan    77 Oct 21 13:45 t
