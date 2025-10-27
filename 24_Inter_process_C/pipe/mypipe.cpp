@@ -30,7 +30,8 @@ int main()
             char buffer[1024]; // 只有子进程可以看见
             snprintf(buffer, sizeof buffer, "child->parent %s[%d]\n",s,count++);
 
-            // 写入管道，内存级文件
+            // 写入管道，内存级文件，管道的容量也是有限制的
+            // 如果读取关闭，os也会关闭写
             write(pipefd[1],buffer, strlen(buffer));
             sleep(1); // 每隔一秒，写入一次
         }
@@ -41,17 +42,23 @@ int main()
     while(true)
     {
         char buffer[1024];
+        // 如果管道之中没有了数据，那么就一直阻塞在那里，按照指定大小进行读取
         ssize_t s = read(pipefd[0], buffer, sizeof(buffer) - 1);
         if(s > 0) buffer[s] = 0; // 再最后一个位置加入截止
         cout<<"# "<<buffer << endl; 
+        
         // 父进程没有进行sleep
+        close(pipefd[0]);
+        break;
     }
     // 父进程的通信代码（读取）
-    close(pipefd[1]);
-
+   
+    int status;
     // 等待子进程退出,阻塞式
-    n = waitpid(id,nullptr,0);
+    n = waitpid(id,&status,0);
     assert(n == id);
+    int sig = (status)&0x7F;
+    cout<<"pid-> "<<n<<"kill by SIG"<<sig<<endl;
     // pipefd[0] = 3  refers to the read end of the pipe
     // pipefd[1] = 4  refers to the write end of the pipe
     cout<<"pipefd[0] = "<<pipefd[0]<<endl<<"pipefd[1] = "<<pipefd[1]<<endl;
