@@ -29,10 +29,11 @@ int main()
         {
             char buffer[1024]; // 只有子进程可以看见
             snprintf(buffer, sizeof buffer, "child->parent %s[%d]\n",s,count++);
-
+            cout<<sizeof buffer<<endl;
             // 写入管道，内存级文件，管道的容量也是有限制的
             // 如果读取关闭，os也会关闭写
             write(pipefd[1],buffer, strlen(buffer));
+            cout<<strlen(buffer)<<endl;
             sleep(1); // 每隔一秒，写入一次
         }
         // 子进程退出
@@ -43,7 +44,7 @@ int main()
     {
         char buffer[1024];
         // 如果管道之中没有了数据，那么就一直阻塞在那里，按照指定大小进行读取
-        ssize_t s = read(pipefd[0], buffer, sizeof(buffer) - 1);
+        ssize_t s = read(pipefd[0], buffer, sizeof(buffer) - 1);// 返回值s是实际读取的字节数
         if(s > 0) buffer[s] = 0; // 再最后一个位置加入截止
         cout<<"# "<<buffer << endl; 
         
