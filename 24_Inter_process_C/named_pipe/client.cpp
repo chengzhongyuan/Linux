@@ -5,7 +5,7 @@ int main()
 {
     std::cout << "client begin" << std::endl;
     // 其实就是以只写的方式去打开了管道文件
-    int FIFOfd = open(NAMED_PIPE, O_WRONLY);
+    int FIFOfd = open(NAMED_PIPE, O_WRONLY); //同时都打开才会向后运行
     std::cout << "client end" << std::endl;
     if(FIFOfd < 0) exit(1); 
 
