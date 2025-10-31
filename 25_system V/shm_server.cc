@@ -39,3 +39,6 @@ int main()
 key        shmid      owner      perms      bytes      nattch     status      
 0x66010072 0          zhongyuan  666        1024       0       
 */
+
+// 共享内存不会给我们进行同步和互斥的操作，没有对数据做任何的保护
+// 系统分配共享内存是以4KB为单位的
