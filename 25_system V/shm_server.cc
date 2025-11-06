@@ -19,7 +19,7 @@ int main()
     {
         snprintf(shmarr, 4096, "server[%d]: %s [%d]\n", id, msg, counter++);
         sleep(2);
-    }
+    } 
 
 
 
