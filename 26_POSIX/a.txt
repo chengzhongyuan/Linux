@@ -1,1 +1,37 @@
 信号量本身就是计数器这就是PV操作
+**IPC（进程间通信）资源是操作系统提供的一组机制，用于在多个进程之间传递数据、同步操作或共享资源。常见的 IPC 类型包括管道、消息队列、共享内存、信号量、信号和套接字等。**
+
+---
+
+## ? IPC资源类型与特点
+
+| 类型 | 描述 | 特点 |
+|------|------|------|
+| **[管道（Pipe）](guide://action?prefill=Tell%20me%20more%20about%3A%20%E7%AE%A1%E9%81%93%EF%BC%88Pipe%EF%BC%89)** | 父子进程之间传递数据 | 简单、单向、仅限血缘进程 |
+| **[命名管道（FIFO）](guide://action?prefill=Tell%20me%20more%20about%3A%20%E5%91%BD%E5%90%8D%E7%AE%A1%E9%81%93%EF%BC%88FIFO%EF%BC%89)** | 非血缘进程间通信 | 支持双向通信、文件系统可见 |
+| **[消息队列（Message Queue）](guide://action?prefill=Tell%20me%20more%20about%3A%20%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%EF%BC%88Message%20Queue%EF%BC%89)** | 通过消息结构传递数据 | 支持异步通信、消息分类 |
+| **[共享内存（Shared Memory）](guide://action?prefill=Tell%20me%20more%20about%3A%20%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%EF%BC%88Shared%20Memory%EF%BC%89)** | 多进程访问同一内存区域 | 高速、需同步机制 |
+| **[信号量（Semaphore）](guide://action?prefill=Tell%20me%20more%20about%3A%20%E4%BF%A1%E5%8F%B7%E9%87%8F%EF%BC%88Semaphore%EF%BC%89)** | 控制资源访问同步 | 适合并发控制、无数据传输 |
+| **[信号（Signal）](guide://action?prefill=Tell%20me%20more%20about%3A%20%E4%BF%A1%E5%8F%B7%EF%BC%88Signal%EF%BC%89)** | 通知进程事件发生 | 异步、轻量、适合事件驱动 |
+| **[套接字（Socket）](guide://action?prefill=Tell%20me%20more%20about%3A%20%E5%A5%97%E6%8E%A5%E5%AD%97%EF%BC%88Socket%EF%BC%89)** | 网络或本地进程通信 | 支持跨主机通信、复杂但灵活 |
+
+Sources: 
+
+---
+
+## ?? IPC资源的应用场景
+
+- **嵌入式系统**：共享内存用于传感器数据采集与处理
+- **服务器开发**：消息队列与信号量用于任务调度与负载控制
+- **工业控制**：管道与信号用于模块间状态同步
+- **分布式系统**：套接字用于节点间数据交换
+
+---
+
+## ? 小贴士
+
+- **共享内存 + 信号量** 是高性能组合，但需注意同步问题
+- **消息队列** 适合模块化设计，支持优先级与异步处理
+- **信号** 是唯一的异步通知机制，适合事件驱动模型
+
+---
