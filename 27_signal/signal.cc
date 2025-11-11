@@ -23,6 +23,13 @@ int main()
     {
         cnt++;
     }
+    // 核心转储
+    while(true)
+    {
+        int a[10];
+        a[1000] = 106;
+        // 分配的栈帧并不一定是那么大
+    }
     // while (true)
     // {
     //     sleep(1);
@@ -49,5 +56,9 @@ int main()
     // int val = kill(getpid(), 3);
     // if (val == 0)
     //     std::cout << "kill sucess" << std::endl;
+
+    // 两种终止方式，进程退出的时候核心转储问题
+    // term就是正常终止没有更多的操作
+    // core是OS系统还会为我们做一些事情,但是云服务器的核心转储默认是关闭的,会生成core文件,帮助我们调试的时候快速定位
     return 0;
 }
