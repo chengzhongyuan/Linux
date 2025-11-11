@@ -2,26 +2,26 @@
 // 1、通过键盘去发送信号（前台进程就是能够影响shell）
 // 2、调用系统函数去发送信号
 // 3、硬件异常产生OS怎么知道我除0呢？CPU会异常,野指针就是段错误，操作系统怎么会知道我野指针了呢？
-// 4、软件条件产生信号比如管道，由软件条件触发，可以使用alarm
+// 4、软件条件产生信号比如管道，由软件条件触发，可以使用alarm,闹钟其实就是使用软件进行实现的
 #include <iostream>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <stdlib.h>
-
+int cnt = 0;
 void ctachsig(int a)
 {
-    std::cout << "获取到一个信号，信号编号是" << a << std::endl;
+    std::cout << "获取到一个信号，信号编号是" << cnt << std::endl;
 }
 int main()
 {
     // 如何证明我们收到的是八号信号
-    signal(SIGFPE, ctachsig);
+    signal(SIGALRM, ctachsig);
     alarm(1);
-    int cnt = 0;
+    
     while (true)
     {
-        std::cout << "cnt: " << cnt++ << std::endl;
+        cnt++;
     }
     // while (true)
     // {
