@@ -18,7 +18,7 @@ void* thread_handler(void* args)
 
 int main()
 {
-    // 创建线程id
+    // 创建线程id，这个是一个地址，现在还无法解释
     pthread_t tid;
     // 最后这个参数是会被喂给函数指针的
     int n = pthread_create(&tid,NULL,thread_handler,(void*)"thread one");
@@ -49,3 +49,12 @@ ps -aL 就表示查看轻量级进程
 
 LWP :light weight process 这就是轻量级进程ID
 */
+
+// 线程一旦被创建几乎所有资源都是被共享的，线程之间互相通信是非常容易的
+/*
+不过呢也有一些是线程私有的资源
+1、独立的线程ID，独立的优先级，独立的线程状态
+下面这两点是最重要的
+2、一定要有自己私有的上下文结构
+3、局部变量，每一个线程都会有自己独立的栈结构
+*/ 
