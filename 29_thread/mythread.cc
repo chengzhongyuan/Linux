@@ -32,7 +32,7 @@ int main()
     return 0;
 }
 
-// 在使用ps xaj | grep mythread 的过程当中我们会发现只有一个进程显示
+// 在使用ps axj | grep mythread 的过程当中我们会发现只有一个进程显示
 
 /*
 [zhongyuan@VM-8-11-centos project]$ ps xaj | grep mythread
@@ -46,7 +46,7 @@ ps -aL 就表示查看轻量级进程
 13925 13925 pts/3    00:00:00 mythread  PID和LWP相同就表明这个是主进程
 13925 13926 pts/3    00:00:00 mythread
 14018 14018 pts/4    00:00:00 ps
-
+ 
 LWP :light weight process 这就是轻量级进程ID
 */
 
