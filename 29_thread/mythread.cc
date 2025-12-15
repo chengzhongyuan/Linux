@@ -5,12 +5,17 @@
 using namespace std;
 
 // 这个函数资源就是被划分给了这个线程
+// 这个函数现在就是一个可重入状态，被十个线程进行执行。也是一个可重入函数
 void* thread_handler(void* args)
 {
     // 这样我们就接收到了这个参数
     string name = static_cast<const char*>(args); 
-    while(true)
+    int cnt = 1;
+    while(cnt)
     {
+        // 局部变量都具有临时性，每一个线程都拥有自己独立的栈结构
+        cout<<"cnt: "<<cnt<<" &cnt: "<<&cnt;
+        cnt--;
         cout<<name<<"I am new thread"<<endl;
         sleep(1);
         // 想观察当线程出现问题时，主线程是否还能正常运行
