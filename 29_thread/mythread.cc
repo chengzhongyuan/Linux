@@ -1,32 +1,53 @@
 #include<iostream>
 #include<pthread.h>
 #include<unistd.h>
+#include<vector>
 using namespace std;
 
 // 这个函数资源就是被划分给了这个线程
 void* thread_handler(void* args)
 {
     // 这样我们就接收到了这个参数
-    const char* str = (char*)args;
+    string name = static_cast<const char*>(args); 
     while(true)
     {
-        cout<<str<<endl;
-        cout<<"I am new thread"<<endl;
+        cout<<name<<"I am new thread"<<endl;
         sleep(1);
+        // 想观察当线程出现问题时，主线程是否还能正常运行
+        // int* p = NULL;
+        // *p = 0;
+        // 观察发现其他进程也会消失，整体的健壮性比较差。信号是整体发给进程的
     }
 }
 
 int main()
 {
-    // 创建线程id，这个是一个地址，现在还无法解释
-    pthread_t tid;
-    // 最后这个参数是会被喂给函数指针的
-    int n = pthread_create(&tid,NULL,thread_handler,(void*)"thread one");
+    // 1、当我们像创建一大批进程的时候
+    vector<pthread_t> tids;
+#define NUM 10
+    for (int i = 0; i < NUM; i++)
+    {
+        pthread_t tid;
+        char* namebuffer = new char[64];   // 动态分配
+        // char namebuffer[64];
+        snprintf(namebuffer,64,"thread:%d ",i+1);
+        int n = pthread_create(&tid,NULL,thread_handler,namebuffer);
+        // cout<<namebuffer<<endl;
+        usleep(1000); // 给线程一点时间启动
+        if(n == 0) tids.push_back(tid);
+    
+    }
+    
+
+    // // 创建线程id，这个是一个地址，现在还无法解释
+    // pthread_t tid;
+    // // 最后这个参数是会被喂给函数指针的 这里面的第一个参数是输出型参数
+    // int n = pthread_create(&tid,NULL,thread_handler,(void*)"thread one");
     
     // 这里是主线程
     while(true)
     {
-        cout<<"I am master thread tid create by me: "<<tid<<endl;
+        cout<<"I am master thread tid create by me: "<<endl;
         sleep(1);
     }
     return 0;
