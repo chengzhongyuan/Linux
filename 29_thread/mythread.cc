@@ -16,6 +16,7 @@ void* thread_handler(void* args)
         // 局部变量都具有临时性，每一个线程都拥有自己独立的栈结构
         cout<<"cnt: "<<cnt<<" &cnt: "<<&cnt;
         cnt--;
+        // exit(0); 任何一个执行流进行调用都会让整个进程退出
         cout<<name<<"I am new thread"<<endl;
         sleep(1);
         // 想观察当线程出现问题时，主线程是否还能正常运行
@@ -23,6 +24,11 @@ void* thread_handler(void* args)
         // *p = 0;
         // 观察发现其他进程也会消失，整体的健壮性比较差。信号是整体发给进程的
     }
+
+    // 线程如何终止
+    // 1、首先任务跑完会自动终止
+    // 2、return 线程就算终止了
+    return nullptr;
 }
 
 int main()
