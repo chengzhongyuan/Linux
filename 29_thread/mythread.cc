@@ -46,7 +46,6 @@ int main()
         // cout<<namebuffer<<endl;
         usleep(1000); // 给线程一点时间启动
         if(n == 0) tids.push_back(tid);
-    
     }
     
 
@@ -55,12 +54,42 @@ int main()
     // // 最后这个参数是会被喂给函数指针的 这里面的第一个参数是输出型参数
     // int n = pthread_create(&tid,NULL,thread_handler,(void*)"thread one");
     
+    // 2、创建完成之后对线程的回收获取线程退出码
+
+    // // pthread_join默认创建成功就不会管理了，退出信号找个方式是只被进程所管理
+    // void* ret;
+    // pthread_join(tids[0],&ret); // 最后一个参数就是线程返回值，刚才不设置那就是空的不会有意义所以会触发段错误
+    // if(ret != nullptr) 
+    // { 
+    //     printf("thread return, thread id %X, return code:%d\n", tids[0], *(int*)ret); 
+    //     delete (int*)ret; // 记得释放 
+    // }
+    
+    // 回收所有线程并读取退出码
+    for (size_t i = 0; i < tids.size(); ++i)
+    {
+        void* ret = nullptr;
+        int jret = pthread_join(tids[i], &ret);
+        if (jret == 0) {
+            // pthread_t 通常打印为 unsigned long
+            printf("thread return, thread id %lu, ", (unsigned long)tids[i]);
+            if (ret) {
+                printf("return code: %d\n", *(int*)ret);
+                delete (int*)ret;
+            } else {
+                printf("return code: (null)\n");
+            }
+        } else {
+            cerr << "pthread_join failed for index " << i << '\n';
+        }
+    }
     // 这里是主线程
     while(true)
     {
         cout<<"I am master thread tid create by me: "<<endl;
         sleep(1);
     }
+
     return 0;
 }
 
