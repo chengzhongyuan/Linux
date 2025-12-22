@@ -1,5 +1,5 @@
-mythread:mythread.cc
+leave_thread:leave_thread.cc
 	g++ -o $@ $^ -lpthread -std=c++11
 .PHONY:clean
 clean:
-	rm -f mythread
+	rm -f leave_thread
