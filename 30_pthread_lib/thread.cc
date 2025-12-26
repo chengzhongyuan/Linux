@@ -7,6 +7,7 @@
 #include<memory>
 #include"Thread.hpp"
 
+// 对于加锁可以添加一个局部的锁，在自己封装的线程去定义锁
 void *thread_run( void * arg ) 
 { 
     // pthread_detach(pthread_self()); 
