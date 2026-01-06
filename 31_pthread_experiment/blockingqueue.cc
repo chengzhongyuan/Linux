@@ -32,13 +32,17 @@ public:
 
     void PushData(const int &data) {
         LockQueue();
+        // 这个其中也可以增加一个水位线，避免频繁的唤醒休眠
+        // 这个while可以确保再次进入循环进行判定保证代码健壮性
         while(IsFull()) {
             std::cout << "Queue full, producer waits..." << std::endl;
-            pthread_cond_wait(&empty, &lock); // 等待消费者消费
+            // 这个条件的第二个参数必须是锁，它会自动的在内部讲锁释放然后把自己挂起
+            pthread_cond_wait(&empty, &lock); // 生产者线程进行等待，等待变空
         }
         q.push(data);
         std::cout << "Produce data done: " << data << std::endl;
-        pthread_cond_signal(&full); // 通知消费者有数据
+        // 唤醒的时候会自动的给自己加上锁
+        pthread_cond_signal(&full); // 唤醒消费者线程
         UnLockQueue();
     }
 
@@ -46,12 +50,12 @@ public:
         LockQueue();
         while(IsEmpty()) {
             std::cout << "Queue empty, consumer waits..." << std::endl;
-            pthread_cond_wait(&full, &lock); // 等待生产者生产
+            pthread_cond_wait(&full, &lock); // 消费者线程进行等待，等待有
         }
         data = q.front();
         q.pop();
         std::cout << "Consume data done: " << data << std::endl;
-        pthread_cond_signal(&empty); // 通知生产者有空位
+        pthread_cond_signal(&empty); // 唤醒生产者线程
         UnLockQueue();
     }
 
@@ -87,7 +91,7 @@ void* producer(void* arg) {
 
 int main() {
     // 全部都是对这个类进行操作对吗
-    
+
     BlockQueue bq;
     pthread_t c, p;
     pthread_create(&c, NULL, consumer, (void*)&bq);
