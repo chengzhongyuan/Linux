@@ -21,7 +21,8 @@ private:
     bool IsFull() { return q.size() == cap; }
 
 public:
-    BlockQueue(int _cap = NUM): cap(_cap) {
+    BlockQueue(int _cap = NUM): cap(_cap) 
+    {
         pthread_mutex_init(&lock, NULL);
         pthread_cond_init(&full, NULL);
         pthread_cond_init(&empty, NULL);
