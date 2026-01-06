@@ -11,6 +11,8 @@ private:
     std::queue<int> q;
     int cap;
     pthread_mutex_t lock;
+    // 创建了两个条件变量一个是链接生产者线程
+    // 另一个是链接消费者线程
     pthread_cond_t full;   // 队列满时，生产者等待
     pthread_cond_t empty;  // 队列空时，消费者等待
 
@@ -84,6 +86,8 @@ void* producer(void* arg) {
 }
 
 int main() {
+    // 全部都是对这个类进行操作对吗
+    
     BlockQueue bq;
     pthread_t c, p;
     pthread_create(&c, NULL, consumer, (void*)&bq);
