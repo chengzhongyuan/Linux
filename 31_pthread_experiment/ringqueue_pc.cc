@@ -6,6 +6,7 @@
 #include <unistd.h>
 #define NUM 16   // 队列容量默认值
 
+// 这里的环形队列是使用数组取模的形式去进行逻辑实现
 // 环形队列类，使用信号量实现生产者-消费者模型
 class RingQueue{ 
 private: 
@@ -20,6 +21,7 @@ public:
     // 构造函数：初始化队列和信号量
     RingQueue(int _cap = NUM):q(_cap),cap(_cap) 
     { 
+        // 这个函数中间的输入参数，0表示线程之间资源进行共享
         sem_init(&data_sem, 0, 0);     // 初始时队列中没有数据
         sem_init(&space_sem, 0, cap);  // 初始时队列空间为容量大小
         consume_step = 0;              // 写指针初始化
@@ -29,11 +31,11 @@ public:
     // 生产者放入数据
     void PutData(const int &data) 
     { 
-        sem_wait(&space_sem);          // 等待有空位（P操作）
+        sem_wait(&space_sem);          // 等待有空位（P操作）    这个也就是对空间信号量减一操作
         q[consume_step] = data;        // 写入数据到队列当前位置
         consume_step++;                // 写指针后移
         consume_step %= cap;           // 环绕（模运算）
-        sem_post(&data_sem);           // 通知有新数据（V操作）
+        sem_post(&data_sem);           // 通知有新数据（V操作）   这个就是对数据信号量进行加以操作
     } 
 
     // 消费者取出数据
