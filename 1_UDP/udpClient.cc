@@ -20,7 +20,10 @@ void UdpClient::run() {
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(port);
     inet_pton(AF_INET, serverIp.c_str(), &serverAddr.sin_addr);
-
+    // 客户端的·端口号也是必需要绑定的但是并不重要我不需要知道，只要是唯一的就可以
+    // 操作系统在你没有调用bind的时候进行绑定
+    // 那么在什么时间进行绑定？
+    // 
     char buffer[1024];
 
     while (true) {
