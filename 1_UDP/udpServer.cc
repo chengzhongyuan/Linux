@@ -3,7 +3,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <cstdio> // C++���
+#include <cstdio> // C++���?
 #include <cstdlib>
 
 
@@ -26,10 +26,10 @@ UdpServer::UdpServer(int port, ServiceCallback cb) : port(port), callback_(cb)
        // ��ֻ�Ǵ�����һ���ļ�����������IP��ַ�Ͷ˿ںŲ�û��
     sockfd = socket(AF_INET, SOCK_DGRAM, 0); // Э���Զ���ȷ����
 
-    // ����ʧ�ܵ�����·��ر���
+    // ����ʧ�ܵ�����·��ر���?
     if (sockfd < 0)
     {
-        // �������������Ϣ
+        // ��������������?
         std::cout << "socket error" << errno << ":" << strerror(errno) << std::endl;
         perror("socket");
         exit(1);
@@ -49,7 +49,7 @@ UdpServer::UdpServer(int port, ServiceCallback cb) : port(port), callback_(cb)
     //             sizeof (struct in_addr)];
     // };
 
-    /* ����һ�� sockaddr_in �ṹ��������������г�Ա��ʼ��Ϊ 0 */
+    /* ����һ�� sockaddr_in �ṹ��������������г�Ա��ʼ���? 0 */
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;         // ���õ�ַ����
     addr.sin_addr.s_addr = INADDR_ANY; // ����IP��ַ�������˼�Ǽ�������������������IP
@@ -65,7 +65,7 @@ UdpServer::UdpServer(int port, ServiceCallback cb) : port(port), callback_(cb)
     std::cout << "UDP Server started on port " << port << std::endl;
 }
 
-// ����������֮���������ʽ�ȴ�
+// ����������֮���������ʽ�ȴ�?
 // ����������ı��ʾ���һ����ѭ��������һ����פ�ڴ�Ľ���
 void UdpServer::run()
 {
@@ -99,13 +99,13 @@ void UdpServer::run()
 
 }
 
-    // ��� A��Ӣ���ֵ䷭�����
+    // ���? A��Ӣ���ֵ䷭�����?
     std::string dictService(const std::string& request) {
         static std::unordered_map<std::string, std::string> dict = {
-            {"hello", "���"},
+            {"hello", "���?"},
             {"world", "����"},
             {"apple", "ƻ��"},
-            {"linux", "һ��ΰ��Ĳ���ϵͳ"}
+            {"linux", "һ��ΰ��Ĳ���ϵ�?"}
         };
 
         auto it = dict.find(request);
@@ -115,6 +115,27 @@ void UdpServer::run()
             return "Unknown word (δ֪����)";
         }
     }
+    // ��� B��Զ������ִ�з���
+std::string execCommandService(const std::string& cmd) {
+    // ��ȫ���أ�ֻ�����ض����޺�����
+    if (cmd != "ls" && cmd != "pwd") {
+        return "Command Not Allowed! Please try 'ls' or 'pwd'\n";
+    }
+
+    std::array<char, 128> buf;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+    
+    if (!pipe) {
+        return "popen failed!";
+    }
+    
+    while (fgets(buf.data(), buf.size(), pipe.get()) != nullptr) {
+        result += buf.data();
+    }
+    
+    return result.empty() ? "Success (No output)\n" : result;
+}
 
 int main()
 {
@@ -123,4 +144,4 @@ int main()
     return 0;
 }
 
-// inet 127.0.0.1  ���ػ��ص�ַ�����������㣬���ǻ���һ��Э�
+// inet 127.0.0.1  ���ػ��ص�ַ�����������㣬���ǻ���һ��Э�
