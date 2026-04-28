@@ -3,59 +3,58 @@
 #include <cstring>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <cstdio> // C++ï¿½ï¿½ï¿?
+#include <cstdio> 
 #include <cstdlib>
 
 
-// ï¿½ï¿½ï¿½ï¿½Ö±ï¿½Ó³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿Úºï¿½
+// ¶Ô¶Ë¿ÚºÅºÍ»Øµ÷º¯Êý½øÐÐ³õÊ¼»¯
 UdpServer::UdpServer(int port, ServiceCallback cb) : port(port), callback_(cb)
 {
-    /* * **DOMAIN** ? Ð­ï¿½ï¿½ï¿½ï¿½
+    /* * **DOMAIN** ? Ð­ÒéÓò
 
-        * `AF_INET` ï¿½ï¿½ IPv4
-        * `AF_INET6` ï¿½ï¿½ IPv6
+        * `AF_INET`  IPv4
+        * `AF_INET6` IPv6
 
-        **TYPE** ? ï¿½×½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        **TYPE** ? Í¨ÐÅÀàÐÍudp»¹ÊÇtcp
+        * `SOCK_STREAM`  TCP
+        * `SOCK_DGRAM`  UDP
 
-        * `SOCK_STREAM` ï¿½ï¿½ TCP
-        * `SOCK_DGRAM` ï¿½ï¿½ UDP
+        **PROTOCOL** ? Ê¹ÓÃÊ²Ã´ÑùµÄÐ­Òé£¬Õâ¸öÒ»°ã¾ÍÊÇ0¾Í¿ÉÒÔÁËÒòÎªÐ­ÒéÓòºÍÍ¨ÐÅÀàÐÍÒÑ¾­×ã¹»¶¨ÏÂÍ¨ÐÅÐ­ÒéÁË
 
-        **PROTOCOL** ? ï¿½ï¿½ï¿½ï¿½Ð­ï¿½ï¿½
+    */
+       
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0); // ÆäÊµ¾ÍÉú³ÉÒ»¸öÎÄ¼þÃèÊö·û
 
-        * Ò»ï¿½ï¿½ï¿½ï¿½ `0`ï¿½ï¿½ÏµÍ³ï¿½Ô¶ï¿½Ñ¡ï¿½ï¿½ */
-       // ï¿½ï¿½Ö»ï¿½Ç´ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IPï¿½ï¿½Ö·ï¿½Í¶Ë¿ÚºÅ²ï¿½Ã»ï¿½ï¿½
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0); // Ð­ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½
-
-    // ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ø±ï¿½ï¿½ï¿?
+    // Õý³£Éú³É¾Í¼ÌÐø½øÐÐ
     if (sockfd < 0)
     {
-        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï?
         std::cout << "socket error" << errno << ":" << strerror(errno) << std::endl;
         perror("socket");
         exit(1);
     }
 
-    /* Structure describing an Internet socket address.  */
-    // struct sockaddr_in
-    // {
-    //     __SOCKADDR_COMMON (sin_);
-    //     in_port_t sin_port;			/* ï¿½Ë¿Úºï¿½  */
-    //     struct in_addr sin_addr;		/* IPï¿½ï¿½Ö·  */
+// /* Structure describing an Internet socket address.  */
+// struct sockaddr_in
+//   {
+//     __SOCKADDR_COMMON (sin_);
+//     in_port_t sin_port;			/* Port number.  */
+//     struct in_addr sin_addr;		/* Internet address.  */
 
-    //     /* Pad to size of `struct sockaddr'.  */
-    //     unsigned char sin_zero[sizeof (struct sockaddr) -
-    //             __SOCKADDR_COMMON_SIZE -
-    //             sizeof (in_port_t) -
-    //             sizeof (struct in_addr)];
-    // };
+//     /* Pad to size of `struct sockaddr'.  */
+//     unsigned char sin_zero[sizeof (struct sockaddr) -
+// 			   __SOCKADDR_COMMON_SIZE -
+// 			   sizeof (in_port_t) -
+// 			   sizeof (struct in_addr)];
+//   };
+
 
     /* ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ sockaddr_in ï¿½á¹¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð³ï¿½Ô±ï¿½ï¿½Ê¼ï¿½ï¿½Î? 0 */
     struct sockaddr_in addr{};
-    addr.sin_family = AF_INET;         // ï¿½ï¿½ï¿½Ãµï¿½Ö·ï¿½ï¿½ï¿½ï¿½
-    addr.sin_addr.s_addr = INADDR_ANY; // ï¿½ï¿½ï¿½ï¿½IPï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¼ï¿½Ç¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IP
-    addr.sin_port = htons(port);       // ï¿½ï¿½ï¿½Ã¶Ë¿Úºï¿½,Î´ï¿½ï¿½ï¿½Ë¿Úºï¿½Ò»ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ç£¬Ò»ï¿½ï¿½Òª×ªï¿½ï¿½ï¿½É´ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    addr.sin_family = AF_INET;         // Ö¸¶¨IPµØÖ·µØÖ·°æ±¾ÈËÎªIPV4
+    addr.sin_addr.s_addr = INADDR_ANY; // IPµØÖ·
+    addr.sin_port = htons(port);       // ¶Ë¿ÚºÅ
 
-    /* ï¿½ï¿½ socket ï¿½Í¡ï¿½IPï¿½ï¿½Ö· + ï¿½Ë¿ÚºÅ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */   
+    /* IPµØÖ·ºÍ¶Ë¿ÚºÅ½øÐÐ°ó¶¨ */   
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
         perror("bind");
@@ -65,14 +64,14 @@ UdpServer::UdpServer(int port, ServiceCallback cb) : port(port), callback_(cb)
     std::cout << "UDP Server started on port " << port << std::endl;
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½È´ï¿?
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½×¤ï¿½Ú´ï¿½Ä½ï¿½ï¿½ï¿½
+
 void UdpServer::run()
 {
     char buffer[1024];
 
     while (true)
     {
+        // ¿Í»§¶Ë
         sockaddr_in clientAddr{};
         socklen_t len = sizeof(clientAddr);
 
@@ -92,56 +91,64 @@ void UdpServer::run()
 
         std::string response = callback_(request);
 
-        // echo ï¿½ï¿½È¥
+        // 
         sendto(sockfd, response.c_str(), response.size(), 0,
                (sockaddr *)&clientAddr, len);
     }
 
 }
 
-    // ï¿½ï¿½ï¿? Aï¿½ï¿½Ó¢ï¿½ï¿½ï¿½Öµä·­ï¿½ï¿½ï¿½ï¿½ï¿?
+    // ²å¼þ A:´Êµä¹¦ÄÜ
     std::string dictService(const std::string& request) {
         static std::unordered_map<std::string, std::string> dict = {
-            {"hello", "ï¿½ï¿½ï¿?"},
-            {"world", "ï¿½ï¿½ï¿½ï¿½"},
-            {"apple", "Æ»ï¿½ï¿½"},
-            {"linux", "Ò»ï¿½ï¿½Î°ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ÏµÍ?"}
+            {"hello", "ÄãºÃ"},
+            {"world", "ÊÀ½ç"},
+            {"apple", "Æ»¹û"},
+            {"linux", "²Ù×÷ÏµÍ³"}
         };
 
         auto it = dict.find(request);
         if (it != dict.end()) {
             return it->second;
         } else {
-            return "Unknown word (Î´Öªï¿½ï¿½ï¿½ï¿½)";
+            return "Unknown word (Î´Öª)";
         }
     }
     // ²å¼þ B£ºÔ¶³ÌÃüÁîÖ´ÐÐ·þÎñ
-std::string execCommandService(const std::string& cmd) {
-    // °²È«À¹½Ø£ºÖ»ÔÊÐíÌØ¶¨µÄÎÞº¦ÃüÁî
-    if (cmd != "ls" && cmd != "pwd") {
-        return "Command Not Allowed! Please try 'ls' or 'pwd'\n";
+    std::string execCommandService(const std::string& cmd) {
+        // °²È«À¹½Ø£ºÖ»ÔÊÐíÌØ¶¨µÄÎÞº¦ÃüÁî
+        if (cmd != "ls" && cmd != "pwd") {
+            return "Command Not Allowed! Please try 'ls' or 'pwd'\n";
+        }
+
+        std::array<char, 128> buf;
+        std::string result;
+        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+        
+        if (!pipe) {
+            return "popen failed!";
+        }
+        
+        while (fgets(buf.data(), buf.size(), pipe.get()) != nullptr) {
+            result += buf.data();
+        }
+        
+        return result.empty() ? "Success (No output)\n" : result;
     }
 
-    std::array<char, 128> buf;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
-    
-    if (!pipe) {
-        return "popen failed!";
+    // ²å¼þC: Ô­Â··µ»Ø
+    std::string repeatService(const std::string& request)
+    {
+        return request;
     }
-    
-    while (fgets(buf.data(), buf.size(), pipe.get()) != nullptr) {
-        result += buf.data();
-    }
-    
-    return result.empty() ? "Success (No output)\n" : result;
-}
+
 
 int main()
 {
-    UdpServer server(8888,dictService);
+    UdpServer server(8888,repeatService);
     server.run();
     return 0;
 }
 
-// inet 127.0.0.1  ï¿½ï¿½ï¿½Ø»ï¿½ï¿½Øµï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã£¬ï¿½ï¿½ï¿½Ç»ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ð­ï¿
+// inet 127.0.0.1  »Ø»·µØÖ·£¬Ö»ÔÚµ±Ç°·þÎñÆ÷Ö®ÖÐ½øÐÐÊý¾ÝÁ÷×ª
+// 49.232.244.54
