@@ -10,6 +10,7 @@
 // 对端口号和回调函数进行初始化
 UdpServer::UdpServer(int port, ServiceCallback cb) : port(port), callback_(cb)
 {
+    // 一、第一步，创建文件描述符，也即是代表了一块有特殊用途的空间，就是操作系统内核分配的一块内存数据结构
     /* * **DOMAIN** ? 协议域
 
         * `AF_INET`  IPv4
@@ -22,7 +23,6 @@ UdpServer::UdpServer(int port, ServiceCallback cb) : port(port), callback_(cb)
         **PROTOCOL** ? 使用什么样的协议，这个一般就是0就可以了因为协议域和通信类型已经足够定下通信协议了
 
     */
-       
     sockfd = socket(AF_INET, SOCK_DGRAM, 0); // 其实就生成一个文件描述符
 
     // 正常生成就继续进行
@@ -33,26 +33,25 @@ UdpServer::UdpServer(int port, ServiceCallback cb) : port(port), callback_(cb)
         exit(1);
     }
 
-// /* Structure describing an Internet socket address.  */
-// struct sockaddr_in
-//   {
-//     __SOCKADDR_COMMON (sin_);
-//     in_port_t sin_port;			/* Port number.  */
-//     struct in_addr sin_addr;		/* Internet address.  */
 
-//     /* Pad to size of `struct sockaddr'.  */
-//     unsigned char sin_zero[sizeof (struct sockaddr) -
-// 			   __SOCKADDR_COMMON_SIZE -
-// 			   sizeof (in_port_t) -
-// 			   sizeof (struct in_addr)];
-//   };
-
-
-    /* 锟斤拷锟斤拷一锟斤拷 sockaddr_in 锟结构锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷谐锟皆憋拷锟绞硷拷锟轿? 0 */
+    // 二、把文件描述符和IP地址加端口号进行绑定
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;         // 指定IP地址地址版本人为IPV4
     addr.sin_addr.s_addr = INADDR_ANY; // IP地址
-    addr.sin_port = htons(port);       // 端口号
+    addr.sin_port = htons(port);       // 端口号 htons将主机的短整数，转换为网络标准的短整数，因为要进行网络传输所以是需要调整大小端字节序
+    // /* Structure describing an Internet socket address.  */
+    // struct sockaddr_in
+    //   {
+    //     __SOCKADDR_COMMON (sin_);
+    //     in_port_t sin_port;			/* Port number.  */
+    //     struct in_addr sin_addr;		/* Internet address.  */
+
+    //     /* Pad to size of `struct sockaddr'.  */
+    //     unsigned char sin_zero[sizeof (struct sockaddr) -
+    // 			   __SOCKADDR_COMMON_SIZE -
+    // 			   sizeof (in_port_t) -
+    // 			   sizeof (struct in_addr)];
+    //   };
 
     /* IP地址和端口号进行绑定 */   
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
