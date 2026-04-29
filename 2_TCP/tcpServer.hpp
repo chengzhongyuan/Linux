@@ -34,5 +34,5 @@ namespace server
             // 3. 为单个连接的客户端提供服务 (内部辅助函数)
             // TCP 是面向连接的，拉到客之后，通常交由这个函数(或者新线程)去专心服务他
             void Service(int client_sockfd, const std::string& client_ip, uint16_t client_port);
-    }
+    };
 }
