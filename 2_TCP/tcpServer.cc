@@ -1,4 +1,5 @@
 #include "tcpServer.hpp"
+#include "log.hpp"
 #include <sys/types.h>          
 #include <sys/socket.h>
 #include <string.h>
@@ -26,8 +27,10 @@ void server::TcpServer::InitServer()
     _listen_sockfd = socket(AF_INET,SOCK_STREAM,0);
     if (_listen_sockfd < 0)
     {
-        std::cout << "socket error" << errno << ":" << strerror(errno) << std::endl;
-        perror("socket");
+        // 使用 FATAL 级别，像 printf 一样传入 %d 和 %s
+        LogMessage(FATAL, "创建套接字失败! 错误码: %d, 描述: %s", errno, strerror(errno));
+        // std::cout << "socket error" << errno << ":" << strerror(errno) << std::endl;
+        // perror("socket");
         exit(1);
     }
 
@@ -51,7 +54,8 @@ void server::TcpServer::InitServer()
         exit(1);
     }
 
-    std::cout << "TCP Server started on port " << _port << std::endl;
+    LogMessage(NORMAL,"TCP 服务器启动成功，正在监听端口 %d", _port);
+    // std::cout << "TCP Server started on port " << _port << std::endl;
     
 }
 
@@ -84,9 +88,11 @@ void server::TcpServer::Start()
         std::string client_ip = ip_buf;
         uint16_t client_port = ntohs(clientaddr.sin_port);// 网络字节序转换成可读
 
-        std::cout << "\n[新连接建立] Client IP: " << client_ip 
-                  << ", Port: " << client_port 
-                  << ", 分配的单间 fd: " << client_sockfd << std::endl;
+
+        LogMessage(NORMAL, "新客户接入! IP: %s, 端口: %d, 分配FD: %d", client_ip.c_str(), client_port, client_sockfd);
+        // std::cout << "\n[新连接建立] Client IP: " << client_ip 
+        //           << ", Port: " << client_port 
+        //           << ", 分配的单间 fd: " << client_sockfd << std::endl;
         
         // 3、链接建立完成开始提供服务端服务,这是一个只能一对一的版本，现在引入多线程概念去实现
         // Service(client_sockfd, client_ip, client_port);
