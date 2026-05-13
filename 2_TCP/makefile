@@ -6,7 +6,7 @@ CXXFLAGS = -std=c++11
 .PHONY:all
 all:tcpClient tcpServer
 tcpClient:tcpClient.cc
-	$(CXX) -o $@ $^ $(CXXFLAGS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) -std=c++11 -lpthread
 tcpServer:tcpServer.cc
 	$(CXX) -o $@ $^ $(CXXFLAGS) -std=c++11 -lpthread
 

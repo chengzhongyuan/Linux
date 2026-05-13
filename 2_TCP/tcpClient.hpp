@@ -3,27 +3,29 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <thread> // 引入多线程支持
 
 namespace client
 {
     class TcpClient
     {
     private:
-        std::string _server_ip;  // 服务器 IP
-        uint16_t _server_port;   // 服务器端口
-        int _sockfd;             // 客户端专属的文件描述符
+        std::string _server_ip;
+        uint16_t _server_port;
+        int _sockfd;
+        bool _is_running; // 控制读写线程退出的开关
 
     public:
-        // 构造函数
         TcpClient(const std::string& server_ip, uint16_t server_port);
-        
-        // 析构函数：负责关闭套接字
         ~TcpClient();
 
-        // 1. 初始化套接字并向服务器发起 TCP 连接
         void InitAndConnect();
-
-        // 2. 开启死循环，与服务器进行持续聊天
+        
+        // 启动全双工聊天（内部会派生接收线程）
         void StartChat();
+
+    private:
+        // 独立运行在后台的子线程函数：专门负责接收服务器广播
+        void ReceiveLoop();
     };
 }

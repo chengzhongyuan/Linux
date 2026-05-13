@@ -35,7 +35,7 @@ void server::TcpServer::InitServer()
     }
 
     // 2、进行绑定
-    struct sockaddr_in addr{};
+    struct sockaddr_in addr{}; // 这就是一个初始化的操作
     addr.sin_family = AF_INET; // 协议域
     addr.sin_port = htons(_port); // 端口号要转换成大端字节序的方式进行网络端的传输
     addr.sin_addr.s_addr = INADDR_ANY;// 任意IP地址
@@ -97,13 +97,22 @@ void server::TcpServer::Start()
         // 3、链接建立完成开始提供服务端服务,这是一个只能一对一的版本，现在引入多线程概念去实现
         // Service(client_sockfd, client_ip, client_port);
 
+        // 修改成多人在线聊天室
+        // 登记：将新连接加入在线映射表
+        {
+            std::lock_guard<std::mutex> lock(_mtx); // 自动加锁/解锁
+            _online_clients[client_sockfd] = client_ip + ":" + std::to_string(client_port);
+        }
+
         // =========================================================
         // （开辟新线程）
         // 参数1：要执行的函数指针 (&TcpServer::Service)
         // 参数2：类成员函数需要传入的 this 指针
         // 参数3-5：传给 Service 函数的具体参数
         // =========================================================
+        // 这里的fd只能传值，因为这是循环接收的假如我们传引用这个数值会一直改变
         std::thread t(&TcpServer::Service, this, client_sockfd, client_ip, client_port);
+        // 执行完任务之后去析构掉
         t.detach();
     }
     
@@ -112,7 +121,7 @@ void server::TcpServer::Start()
 void server::TcpServer::Service(int client_sockfd, const std::string& client_ip, uint16_t client_port)
 {
     char buffer[1024];
-
+    std::string client_info = client_ip + ":" + std::to_string(client_port);
     // 单间的死循环：只要客人不走，我们就一直为他服务
     while (true)
     {
@@ -126,12 +135,8 @@ void server::TcpServer::Service(int client_sockfd, const std::string& client_ip,
             buffer[n] = '\0';
             std::cout << "[" << client_ip << ":" << client_port << "] 说: " << buffer << std::endl;
 
-            // 核心 2：调用外部注入的业务逻辑插件，生成回复
-            std::string request = buffer;
-            std::string response = _callback(request);
-
-            // 核心 3：发回给客人 (TCP 用 send 或 write)
-            send(client_sockfd, response.c_str(), response.size(), 0);
+            // 核心传递：将处理权限转交给顶层的回调逻辑函数
+            _callback(this, client_sockfd, client_info, buffer);
         }
         else if (n == 0)
         {
@@ -148,6 +153,12 @@ void server::TcpServer::Service(int client_sockfd, const std::string& client_ip,
         }
     }
 
+    // 退出服务逻辑时，必须同时在映射表里擦除记录并回收文件描述符
+    {
+        std::lock_guard<std::mutex> lock(_mtx);
+        _online_clients.erase(client_sockfd);
+    }
+
     // ??? 致命重点：关门送客！
     // 只要退出了上面的循环，说明服务结束，必须立刻把单间钥匙还给操作系统！
     // 如果不写这一句，服务器运行一段时间后，所有的系统 FD 资源会被耗尽，服务器直接崩溃！
@@ -158,18 +169,47 @@ server::TcpServer::~TcpServer()
 {
 }
 
-// 插件C: 原路返回
-    std::string repeatService(const std::string& request)
+// ===================================================================
+// 业务逻辑层实现 (解耦展示)
+// ===================================================================
+
+// 回调函数A: 原路返回业务 (Echo)
+void echoService(server::TcpServer* svr, int fd, const std::string& info, const std::string& msg)
+{
+    std::string response = "[Echo 应答]: " + msg;
+    send(fd, response.c_str(), response.size(), 0);
+}
+
+// 回调函数B: 多人聊天室消息广播插件
+void chatRoomService(server::TcpServer* svr, int fd, const std::string& info, const std::string& msg)
+{
+    // 调用由服务端底层公开的 Broadcast 方法推送
+    svr->Broadcast(fd, info, msg);
+}
+
+// 🌟 实现底层的广播分发机制
+void server::TcpServer::Broadcast(int sender_fd, const std::string& sender_info, const std::string& message)
+{
+    // 组装群聊广播报文格式
+    std::string broadcast_msg = "[" + sender_info + "] 对大家说: " + message;
+
+    std::lock_guard<std::mutex> lock(_mtx);
+    for (auto& client : _online_clients)
     {
-        return request;
+        // 将消息分发给除了发送端以外的所有在线套接字
+        if (client.first != sender_fd)
+        {
+            send(client.first, broadcast_msg.c_str(), broadcast_msg.size(), 0);
+        }
     }
+}
 int main()
 {
     // 假设你目前先在本地进行自测，填 127.0.0.1
     // 如果要跨网测试，换成你服务器的公网 IP 即可
 
 
-    server::TcpServer tcpserver(8888,repeatService);
+    server::TcpServer tcpserver(8888,chatRoomService);
     tcpserver.InitServer();
     tcpserver.Start();
 
